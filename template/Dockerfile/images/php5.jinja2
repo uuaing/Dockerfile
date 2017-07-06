@@ -62,8 +62,10 @@ RUN /usr/local/bin/apk-install \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin/ --filename=composer \
     # PECL workaround, see webdevops/Dockerfile#78
     && sed -i "s/ -n / /" $(which pecl) \
-
-    && go-replace  -v -s 'expr -- [$]0 : "'\''.*"' -r 'expr " [$]0" : " '\''.*"' -- /usr/lib/php/build/acinclude.m4
+    && apk-install gcc php5-dev autoconf --virtual .pecl-deps \
+    # && go-replace  -v -s 'expr -- [$]0 : "'\''.*"' -r 'expr " [$]0" : " '\''.*"' -- /usr/lib/php/build/acinclude.m4
+    && && pecl install apcu-4.0.11 \
+    && apk del .pecl-deps \
     {{ services.php() }} \
     {{ provision.runBootstrap() }} \
     {{ docker.cleanup() }}
